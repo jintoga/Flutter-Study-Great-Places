@@ -33,6 +33,9 @@
                 android:name="com.google.android.gms.version"
                 android:value="@integer/google_play_services_version" />
         </activity>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="API KEY" />  <!--ToDo:add google map api key-->
     </application>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 </manifest>

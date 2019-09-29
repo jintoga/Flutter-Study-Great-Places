@@ -21,9 +21,9 @@ class PlaceLocation {
   final double lng;
   final String address;
 
-  PlaceLocation(
+  const PlaceLocation({
     @required this.lat,
     @required this.lng,
     this.address,
-  );
+  });
 }
