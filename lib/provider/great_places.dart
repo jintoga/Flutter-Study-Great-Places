@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:great_places/helpers/db_helper.dart';
+import 'package:great_places/helpers/location_helper.dart';
 import 'package:great_places/model/place.dart';
 
 class GreatPlaces with ChangeNotifier {
@@ -11,12 +12,22 @@ class GreatPlaces with ChangeNotifier {
     return [..._items];
   }
 
-  void addPlace(String title, File image) {
+  Future<void> addPlace(
+      String title, File image, PlaceLocation pickedLocation) async {
+    final address = await LocationHelper.getPlaceAddress(
+      pickedLocation.lat,
+      pickedLocation.lng,
+    );
+    final updatedLocation = PlaceLocation(
+      lat: pickedLocation.lat,
+      lng: pickedLocation.lng,
+      address: address,
+    );
     final place = Place(
       id: DateTime.now().toString(),
       image: image,
       title: title,
-      location: null,
+      location: updatedLocation,
     );
     _items.add(place);
     notifyListeners();
@@ -24,6 +35,9 @@ class GreatPlaces with ChangeNotifier {
       'id': place.id,
       'title': place.title,
       'image': place.image.path,
+      'loc_lat': place.location.lat,
+      'loc_lng': place.location.lng,
+      'address': place.location.address,
     });
   }
 
@@ -33,10 +47,18 @@ class GreatPlaces with ChangeNotifier {
         .map((item) => Place(
               id: item['id'],
               title: item['title'],
-              location: null,
               image: File(item['image']),
+              location: PlaceLocation(
+                lat: item['loc_lat'],
+                lng: item['loc_lng'],
+                address: item['address'],
+              ),
             ))
         .toList();
     notifyListeners();
+  }
+
+  Place findPlaceById(String placeId) {
+    return _items.firstWhere((item) => item.id == placeId);
   }
 }

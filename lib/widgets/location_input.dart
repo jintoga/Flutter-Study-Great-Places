@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:great_places/helpers/location_helper.dart';
 import 'package:great_places/screens/map_screen.dart';
 import 'package:location/location.dart';
 
 class LocationInput extends StatefulWidget {
+  final Function _onSelectedPlace;
+
+  LocationInput(this._onSelectedPlace);
+
   @override
   _LocationInputState createState() => _LocationInputState();
 }
@@ -11,23 +16,35 @@ class LocationInput extends StatefulWidget {
 class _LocationInputState extends State<LocationInput> {
   String _previewImageUrl;
 
-  Future<void> _getCurrentLocation() async {
-    final locationData = await Location().getLocation();
-    final previewImageUrl = LocationHelper.generateLocationPreviewImage(
-        lat: locationData.latitude, lng: locationData.longitude);
+  void _showPreview(double lat, double lng) {
+    final previewImageUrl =
+        LocationHelper.generateLocationPreviewImage(lat: lat, lng: lng);
     setState(() {
       _previewImageUrl = previewImageUrl;
     });
   }
 
+  Future<void> _getCurrentLocation() async {
+    try {
+      final locationData = await Location().getLocation();
+      _showPreview(locationData.latitude, locationData.longitude);
+      widget._onSelectedPlace(locationData.latitude, locationData.longitude);
+    } catch (error) {
+      return;
+    }
+  }
+
   Future<void> _selectOnMap() async {
-    final selectedLocation = await Navigator.of(context).push(MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (context) => MapScreen(isSelecting: true)));
+    final selectedLocation = await Navigator.of(context).push<LatLng>(
+        MaterialPageRoute(
+            fullscreenDialog: true,
+            builder: (context) => MapScreen(isSelecting: true)));
     if (selectedLocation == null) {
       return;
     }
-    print(selectedLocation);
+    _showPreview(selectedLocation.latitude, selectedLocation.longitude);
+    widget._onSelectedPlace(
+        selectedLocation.latitude, selectedLocation.longitude);
   }
 
   @override

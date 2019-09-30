@@ -44,18 +44,22 @@ class _MapScreenState extends State<MapScreen> {
       body: GoogleMap(
         initialCameraPosition: CameraPosition(
           target: LatLng(
-            widget.initialLocation.lng,
+            widget.initialLocation.lat,
             widget.initialLocation.lng,
           ),
           zoom: 16,
         ),
         onTap: widget.isSelecting ? _selectPlace : null,
-        markers: _pickedLocation == null
+        markers: _pickedLocation == null && widget.isSelecting
             ? null
             : {
                 Marker(
                   markerId: MarkerId('m1'),
-                  position: _pickedLocation,
+                  position: _pickedLocation ??
+                      LatLng(
+                        widget.initialLocation.lat,
+                        widget.initialLocation.lng,
+                      ),
                 ),
               },
       ),
